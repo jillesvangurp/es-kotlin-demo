@@ -40,7 +40,12 @@ application {
 }
 
 dependencies {
-    implementation("com.github.jillesvangurp:es-kotlin-wrapper-client:0.9.9")
+    implementation("com.github.jillesvangurp:es-kotlin-wrapper-client:0.9.10")
+
+    implementation("io.inbot:inbot-utils:1.28")
+    implementation("io.inbot:xmltools:2.1")
+    implementation("com.jillesvangurp:iterables-support:1.8")
+    implementation("org.apache.commons:commons-compress:1.18")
 
     implementation( "org.slf4j:slf4j-api:1.7.25")
     implementation( "org.slf4j:jcl-over-slf4j:1.7.25")

@@ -28,25 +28,20 @@ class ThingService(val thingDao: IndexDAO<Thing>) {
     fun indexingThings() {
         val thing1 = Thing("my 1st thing", 1)
 
-        // not there yet, so it returns null
-        println(thingDao.get("1")?.name ?: "No such thing")
-
-        // so lets fix that
         thingDao.index("1", thing1)
 
-        // and now it is there
         println(thingDao.get("1"))
+
+        println(thingDao.get("idontexist") ?: "returns null because it doesn't exist")
     }
 
     fun upsertingThings() {
         try {
-            // this won't work
-            thingDao.index("1", Thing("An different thing", 0))
+            thingDao.index("1", Thing("This thing won't work", 0))
         } catch (e: ElasticsearchStatusException) {
             println("we already had one of those and es returned ${e.status().status}")
         }
-        // upserts work
-        thingDao.index("1", Thing("An different thing", 0), create = false)
+        thingDao.index("1", Thing("An different thing cause we can upsert", 0), create = false)
     }
 
     fun deletingThings() {
@@ -57,15 +52,12 @@ class ThingService(val thingDao: IndexDAO<Thing>) {
     fun updatingThings() {
         thingDao.index("2", Thing("Another thing"))
 
-        // 42
         println(thingDao.get("2"))
 
         thingDao.update("2") { currentThing ->
-            // we fetched the current thing and returning a modified version
-            currentThing.copy(amount=666)
+            currentThing.copy(name = "an updated thing",amount=666)
         }
 
-        // 666
         println(thingDao.get("2"))
     }
 
