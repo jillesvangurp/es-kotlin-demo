@@ -18,7 +18,7 @@ fun main() {
         // you could copy paste this from Kibana Dev tools ...
         val queryJson = """
 {
-    "size":20,
+    "size":5,
     "query": {
         "bool": {
             "should":[
@@ -44,11 +44,23 @@ fun main() {
         val results = articleDao.search {
             source(queryJson)
         }
-        println("We found ${results.totalHits} searching for '$keyword'")
+        println("We found ${results.totalHits} searching for '$keyword'. First page of results:")
         results.mappedHits.forEach {
             println("${it.title} - ${it.url}")
         }
 
+        println()
+        println("Lets get all of it by scrolling ...")
+        val scrollingResults = articleDao.search(scrolling = true) {
+            source(queryJson)
+        }
+        println("We found ${scrollingResults.totalHits} searching for '$keyword'")
+        scrollingResults.mappedHits.forEach {
+            println("${it.title} - ${it.url}")
+        }
+
+
+        println()
         // if you want to know how many articles we indexed:
         println("Total number of simple wiki pedia articles ${articleDao.search {  }.totalHits}")
     }
