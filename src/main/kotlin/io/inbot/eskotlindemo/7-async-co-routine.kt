@@ -12,8 +12,7 @@ import org.elasticsearch.search.builder.SearchSourceBuilder
 
 fun main() {
     RestHighLevelClient().use { client ->
-
-        // index it first before running this :-)
+        
         val articleDao = client.crudDao(
             "simplewikipedia",
             JacksonModelReaderAndWriter(SimpleWikiPediaPage::class, ObjectMapper().findAndRegisterModules())
