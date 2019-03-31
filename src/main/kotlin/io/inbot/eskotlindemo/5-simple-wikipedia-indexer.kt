@@ -25,20 +25,17 @@ data class SimpleWikiPediaPage(
 
 val logger = KotlinLogging.logger { }
 fun main() {
-    val reader =
-        BZip2CompressorInputStream(FileInputStream("/Users/jillesvangurp/Downloads/simplewiki-20170820-pages-meta-current.xml.bz2")).reader()
 
-    // yes, it's over engineered ;-)
-    val xpbf = XpathBrowserFactory(PooledXmlParser(20, 20), XPathExpressionCache(20, 10000, 1000, 20))
+
+    // yes, it's over engineered but it works ;-)
+    val xpbf = XpathBrowserFactory(PooledXmlParser(20, 20),
+        XPathExpressionCache(20, 10000, 1000, 20))
 
     val start = System.currentTimeMillis()
     RestHighLevelClient().use { client ->
-        // lets use jackson to serialize our Thing, other serializers
-        // can be supported by implementing ModelReaderAndWriter
-        val modelReaderAndWriter =
+        val articleDao = client.crudDao("simplewikipedia-sample",
             JacksonModelReaderAndWriter(SimpleWikiPediaPage::class, ObjectMapper().findAndRegisterModules())
-
-        val articleDao = client.crudDao("simplewikipedia-sample", modelReaderAndWriter)
+        )
 
         articleDao.deleteIndex()
         articleDao.createIndex {
@@ -51,11 +48,16 @@ fun main() {
             refreshPolicy = WriteRequest.RefreshPolicy.IMMEDIATE,
             retryConflictingUpdates = 0
         ) {
+            // our input
+            val file = "/Users/jillesvangurp/Downloads/simplewiki-20170820-pages-meta-current.xml.bz2"
+            val reader =
+                BZip2CompressorInputStream(FileInputStream(file)).reader()
+
             BlobIterable(reader, "<page", "</page>").iterator()
                 .asSequence()
-                .take(1000)
+                .take(1000) // whole thing would take a few minutes
                 .map { parsePage(xpbf, it) }
-                .filterNotNull()
+                .filterNotNull() // filter out all the parser failures
                 .forEach {
                     index(it.id.toString(), it)
                     if (count % 100 == 0) {

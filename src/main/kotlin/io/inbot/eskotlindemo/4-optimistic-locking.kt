@@ -1,6 +1,7 @@
 package io.inbot.eskotlindemo
 
 import com.fasterxml.jackson.databind.ObjectMapper
+import io.inbot.eskotlinwrapper.IndexDAO
 import io.inbot.eskotlinwrapper.JacksonModelReaderAndWriter
 import org.elasticsearch.ElasticsearchStatusException
 import org.elasticsearch.action.support.WriteRequest
@@ -11,13 +12,7 @@ import org.elasticsearch.common.xcontent.XContentType
 fun main() {
     RestHighLevelClient().use { client ->
 
-        val thingDao = client.crudDao("optimistically",
-            JacksonModelReaderAndWriter(Thing::class, ObjectMapper().findAndRegisterModules())
-        )
-        thingDao.deleteIndex()
-        thingDao.createIndex {
-            source(this::class.java.getResource("/thing-settings.json").readText(), XContentType.JSON)
-        }
+        val thingDao = createDaoAndIndex(client)
 
         thingDao.index("1", Thing("A Thing"))
         try {
@@ -28,6 +23,7 @@ fun main() {
         thingDao.index("1", Thing("A Changed Thing Blindly overwritten"), create = false)
         println(thingDao.get("1")?.name)
 
+        // now do it properly with optimistic locking
         val (_, getResponse) = thingDao.getWithGetResponse("1")
             ?: throw IllegalStateException("it should be there")
 
@@ -39,6 +35,7 @@ fun main() {
             primaryTerm = getResponse.primaryTerm
         )
 
+        // this is what happens if you have the wrong seqNo
         try {
             thingDao.index(
                 "id",
@@ -51,6 +48,7 @@ fun main() {
             println("it conflicted: ${e.status().status} ${e.message}")
         }
 
+        // and this does the right thing for you
         thingDao.update("1", maxUpdateTries = 5) { currentVersion ->
             currentVersion.copy(name="Update with retries makes this painless")
         }
@@ -60,7 +58,7 @@ fun main() {
             bulkSize = 3,
             refreshPolicy = WriteRequest.RefreshPolicy.WAIT_UNTIL,
             // the default handler actually takes care of retries but where's the fun in that :-)
-            itemCallback = { operation, resp ->
+            itemCallback = { _, resp ->
                 if (resp.isFailed) {
                     logger.info(":-( ${resp.id} : ${resp.failureMessage}")
                 } else {
@@ -77,10 +75,22 @@ fun main() {
             }
             // or just fetch the latest and use the correct version
             getAndUpdate("666") {
-                it.copy("Fine")
+                it.copy(name="Fine")
             }
 
             delete("666")
         }
     }
+}
+
+private fun createDaoAndIndex(client: RestHighLevelClient): IndexDAO<Thing> {
+    val thingDao = client.crudDao(
+        "optimistically",
+        JacksonModelReaderAndWriter(Thing::class, ObjectMapper().findAndRegisterModules())
+    )
+    thingDao.deleteIndex()
+    thingDao.createIndex {
+        source(this::class.java.getResource("/thing-settings.json").readText(), XContentType.JSON)
+    }
+    return thingDao
 }

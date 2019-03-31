@@ -8,22 +8,17 @@ import org.elasticsearch.client.crudDao
 
 fun main() {
     RestHighLevelClient().use { client ->
-        // lets use jackson to serialize our Thing, other serializers
-        // can be supported by implementing ModelReaderAndWriter
-        val modelReaderAndWriter =
-            JacksonModelReaderAndWriter(SimpleWikiPediaPage::class, ObjectMapper().findAndRegisterModules())
 
         // index it first before running this :-)
-        val articleDao = client.crudDao("simplewikipedia", modelReaderAndWriter)
-
-        println("${articleDao.search {  }.totalHits}")
+        val articleDao = client.crudDao("simplewikipedia",
+            JacksonModelReaderAndWriter(SimpleWikiPediaPage::class, ObjectMapper().findAndRegisterModules())
+        )
 
         val keyword ="search"
-        articleDao.search {
-            source(
-                """
+        // you could copy paste this from Kibana Dev tools ...
+        val queryJson = """
 {
-    "size":100,
+    "size":20,
     "query": {
         "bool": {
             "should":[
@@ -45,23 +40,16 @@ fun main() {
     }
 }
 """
-            )
-        }.mappedHits.forEach {
+        // do the search
+        val results = articleDao.search {
+            source(queryJson)
+        }
+        println("We found ${results.totalHits} searching for '$keyword'")
+        results.mappedHits.forEach {
             println("${it.title} - ${it.url}")
         }
 
-//        articleDao.search {
-//            source(
-//                SearchSourceBuilder.searchSource().size(0).aggregation(
-//                    TermsAggregationBuilder(
-//                        "descriptions",
-//                        ValueType.STRING
-//                    ).field("description")
-//                        .size(100)
-//                )
-//            )
-//        }.searchResponse.aggregations.get<Terms>("descriptions").buckets.forEach {
-//            println("${it.key} : ${it.docCount}")
-//        }
+        // if you want to know how many articles we indexed:
+        println("Total number of simple wiki pedia articles ${articleDao.search {  }.totalHits}")
     }
 }

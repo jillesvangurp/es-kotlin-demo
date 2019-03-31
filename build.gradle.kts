@@ -10,17 +10,6 @@ repositories {
     maven("https://jitpack.io")
 }
 
-dependencies {
-    // Use the Kotlin JDK 8 standard library.
-    implementation("org.jetbrains.kotlin:kotlin-stdlib-jdk8")
-
-    // Use the Kotlin test library.
-    testImplementation("org.jetbrains.kotlin:kotlin-test")
-
-    // Use the Kotlin JUnit integration.
-    testImplementation("org.jetbrains.kotlin:kotlin-test-junit")
-}
-
 java {
     sourceCompatibility = JavaVersion.VERSION_1_8
     targetCompatibility = JavaVersion.VERSION_1_8
@@ -40,6 +29,9 @@ application {
 }
 
 dependencies {
+    // Use the Kotlin JDK 8 standard library.
+    implementation("org.jetbrains.kotlin:kotlin-stdlib-jdk8")
+
     implementation("com.github.jillesvangurp:es-kotlin-wrapper-client:v0.9.11")
 
     implementation("io.inbot:inbot-utils:1.28")
