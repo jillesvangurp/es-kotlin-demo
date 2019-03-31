@@ -40,7 +40,7 @@ application {
 }
 
 dependencies {
-    implementation("com.github.jillesvangurp:es-kotlin-wrapper-client:0.9.10")
+    implementation("com.github.jillesvangurp:es-kotlin-wrapper-client:v0.9.11")
 
     implementation("io.inbot:inbot-utils:1.28")
     implementation("io.inbot:xmltools:2.1")

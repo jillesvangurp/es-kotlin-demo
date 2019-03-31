@@ -18,6 +18,7 @@ import java.io.FileInputStream
 data class SimpleWikiPediaPage(
     val id: Long,
     val timestamp: String,
+    val url: String,
     val title: String,
     val description: String
 )
@@ -37,7 +38,7 @@ fun main() {
         val modelReaderAndWriter =
             JacksonModelReaderAndWriter(SimpleWikiPediaPage::class, ObjectMapper().findAndRegisterModules())
 
-        val articleDao = client.crudDao("simplewikipedia", modelReaderAndWriter)
+        val articleDao = client.crudDao("simplewikipedia-sample", modelReaderAndWriter)
 
         articleDao.deleteIndex()
         articleDao.createIndex {
@@ -46,8 +47,8 @@ fun main() {
 
         var count = 0
         articleDao.bulk(
-            bulkSize = 50,
-            refreshPolicy = WriteRequest.RefreshPolicy.NONE,
+            bulkSize = 300,
+            refreshPolicy = WriteRequest.RefreshPolicy.IMMEDIATE,
             retryConflictingUpdates = 0
         ) {
             BlobIterable(reader, "<page", "</page>").iterator()
@@ -70,9 +71,10 @@ fun main() {
 
 private fun parsePage(
     xpbf: XpathBrowserFactory,
-    it: String?
+    rawText: String?
 ): SimpleWikiPediaPage? {
-    val browser = xpbf.browse(it)
+//    println(rawText)
+    val browser = xpbf.browse(rawText)
 
     return try {
         val title = browser.getString("/page/title").orElse("")
@@ -85,9 +87,11 @@ private fun parsePage(
                 val description = text.reader().readLines()
                     .firstOrNull { !(it.startsWith("[") || it.startsWith("{") || it.startsWith("#")) } ?: ""
 
+
                 SimpleWikiPediaPage(
                     id = id.toLong(),
                     title = title,
+                    url= "https://simple.wikipedia.org/wiki/${title.replace(" ","_")}",
                     description = description,
                     timestamp = timestamp
                 )
@@ -98,7 +102,7 @@ private fun parsePage(
             null
         }
     } catch (e: Exception) {
-        logger.error(it)
+        logger.error(rawText)
         return null
     }
 }

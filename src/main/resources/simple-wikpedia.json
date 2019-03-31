@@ -13,11 +13,15 @@
       "id": {
         "type": "long"
       },
+      "url": {
+        "type": "keyword"
+      },
       "title": {
         "type": "text"
       },
       "description": {
-        "type": "text"
+        "type": "text",
+        "fielddata": true
       },
       "timestamp": {
         "type": "date"
