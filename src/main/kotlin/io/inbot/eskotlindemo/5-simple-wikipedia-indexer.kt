@@ -33,7 +33,7 @@ fun main() {
 
     val start = System.currentTimeMillis()
     RestHighLevelClient().use { client ->
-        val articleDao = client.crudDao("simplewikipedia-sample",
+        val articleDao = client.crudDao("simplewikipedia-sample", // I did one earlier ...
             JacksonModelReaderAndWriter(SimpleWikiPediaPage::class, ObjectMapper().findAndRegisterModules())
         )
 

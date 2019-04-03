@@ -7,7 +7,9 @@ import org.elasticsearch.client.RestClient
 import org.elasticsearch.client.RestHighLevelClient
 
 fun main() {
-    var restClientBuilder = RestClient.builder(HttpHost("localhost", 9200, "http"))
+    val restClientBuilder = RestClient.builder(
+        HttpHost("localhost", 9200, "http")
+    )
     val restHighLevelClient = RestHighLevelClient(restClientBuilder)
 
     restHighLevelClient.use {

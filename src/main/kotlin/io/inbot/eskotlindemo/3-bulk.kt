@@ -23,6 +23,7 @@ fun main() {
 }
 
 private fun createDaoAndIndex(client: RestHighLevelClient): IndexDAO<Thing> {
+    // We've seen this before
     val thingDao = client.crudDao(
         "bulkthings",
         JacksonModelReaderAndWriter(Thing::class, ObjectMapper().findAndRegisterModules())

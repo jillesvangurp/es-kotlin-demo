@@ -37,7 +37,8 @@ fun main() {
 }
 
 
-class ThingService(val thingDao: IndexDAO<Thing>) {
+class ThingService(private val thingDao: IndexDAO<Thing>) {
+
     fun recreateTheIndex() {
         thingDao.deleteIndex()
 
@@ -64,7 +65,11 @@ class ThingService(val thingDao: IndexDAO<Thing>) {
         } catch (e: ElasticsearchStatusException) {
             println("we already had one of those and es returned ${e.status().status}")
         }
-        thingDao.index("1", Thing("An different thing cause we can upsert", 0), create = false)
+        thingDao.index(
+            id = "1",
+            obj = Thing("A different thing cause we can upsert", 0),
+            create = false
+        )
     }
 
     fun deletingThings() {
