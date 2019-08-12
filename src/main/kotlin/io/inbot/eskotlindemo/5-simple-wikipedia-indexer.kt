@@ -106,7 +106,7 @@ fun main() {
                             skipCount.incrementAndGet()
                         }
                     }
-                    logger.info("DONE indexed ${indexCount.get()} articles; skipped ${skipCount.get()}")
+                    logger.info("DONE indexed ${indexCount.get()} articles; skipped ${skipCount.get()} for a total of ${indexCount.get() + skipCount.get()}")
                 }
             }
 
