@@ -41,23 +41,23 @@ fun main() {
 }
 """
         // do the search
-        val results = articleDao.search {
-            source(queryJson)
-        }
-        println("We found ${results.totalHits} searching for '$keyword'. First page of results:")
-        results.mappedHits.forEach {
-            println("${it.title} - ${it.url}")
-        }
-
-//        println()
-//        println("Lets get all of it by scrolling ...")
-//        val scrollingResults = articleDao.search(scrolling = true) {
+//        val results = articleDao.search {
 //            source(queryJson)
 //        }
-//        println("We found ${scrollingResults.totalHits} searching for '$keyword'")
-//        scrollingResults.mappedHits.forEach {
+//        println("We found ${results.totalHits} searching for '$keyword'. First page of results:")
+//        results.mappedHits.forEach {
 //            println("${it.title} - ${it.url}")
 //        }
+
+        println()
+        println("Lets get all of it by scrolling ...")
+        val scrollingResults = articleDao.search(scrolling = true) {
+            source(queryJson)
+        }
+        println("We found ${scrollingResults.totalHits} searching for '$keyword'")
+        scrollingResults.mappedHits.forEach {
+            println("${it.title} - ${it.url}")
+        }
 
 
         println()
