@@ -15,7 +15,7 @@
     </appender>
 
     <logger name="org.elasticsearch" level="INFO"/>
-    <logger name="org.apache" level="ERROR"/>
+    <logger name="org.apache" level="INFO"/>
 
     <root level="INFO">
         <appender-ref ref="ASYNC-STDOUT"/>
