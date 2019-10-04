@@ -15,7 +15,7 @@ fun main() {
     create().use { client ->
         
         val articleDao = client.crudDao(
-            "simplewikipedia",
+            "simplewikipedia-sample",
             JacksonModelReaderAndWriter(SimpleWikiPediaPage::class, ObjectMapper().findAndRegisterModules())
         )
 

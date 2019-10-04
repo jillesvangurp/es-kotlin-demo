@@ -10,8 +10,8 @@ import org.elasticsearch.client.crudDao
 fun main() {
     create().use { client ->
 
-        // maybe index it first before searching s:-)
-        val articleDao = client.crudDao("simplewikipedia",
+        // maybe index it first using the wikipedia indexer before searching s:-)
+        val articleDao = client.crudDao("simplewikipedia-sample",
             JacksonModelReaderAndWriter(SimpleWikiPediaPage::class, ObjectMapper().findAndRegisterModules())
         )
 

@@ -18,7 +18,7 @@ fun main() {
         println("ES is ${restHighLevelClient.cluster().health(ClusterHealthRequest(),RequestOptions.DEFAULT).status}")
     }
 
-    // We can do better ...
+    // We can do better by using the factory method...
     create().use { client ->
         // This works because we have sane default values for parameters that work with localhost:9200
         println("ES is ${client.cluster().health(ClusterHealthRequest(),RequestOptions.DEFAULT).status}")

@@ -40,7 +40,7 @@ fun main() {
         XPathExpressionCache(20, 10000, 1000, 20))
 
     val start = System.currentTimeMillis()
-    create(useSniffer = false).use { client ->
+    create().use { client ->
         val articleDao = client.crudDao("simplewikipedia-sample", // I did one earlier ...
             JacksonModelReaderAndWriter(SimpleWikiPediaPage::class, ObjectMapper().findAndRegisterModules())
         )
