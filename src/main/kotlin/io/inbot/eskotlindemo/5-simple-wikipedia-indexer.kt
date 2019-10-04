@@ -6,8 +6,6 @@ import io.inbot.eskotlinwrapper.JacksonModelReaderAndWriter
 import io.inbot.xmltools.PooledXmlParser
 import io.inbot.xmltools.XPathExpressionCache
 import io.inbot.xmltools.XpathBrowserFactory
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.newFixedThreadPoolContext
@@ -16,6 +14,7 @@ import mu.KotlinLogging
 import org.apache.commons.compress.compressors.bzip2.BZip2CompressorInputStream
 import org.elasticsearch.action.support.WriteRequest
 import org.elasticsearch.client.RestHighLevelClient
+import org.elasticsearch.client.create
 import org.elasticsearch.client.crudDao
 import org.elasticsearch.common.xcontent.XContentType
 import java.io.FileInputStream
@@ -41,7 +40,7 @@ fun main() {
         XPathExpressionCache(20, 10000, 1000, 20))
 
     val start = System.currentTimeMillis()
-    RestHighLevelClient().use { client ->
+    create(useSniffer = false).use { client ->
         val articleDao = client.crudDao("simplewikipedia-sample", // I did one earlier ...
             JacksonModelReaderAndWriter(SimpleWikiPediaPage::class, ObjectMapper().findAndRegisterModules())
         )
@@ -51,80 +50,32 @@ fun main() {
             source(this::class.java.getResource("/simple-wikpedia.json").readText(), XContentType.JSON)
         }
 
-//        var count = 0
-        articleDao.bulk(
-            bulkSize = 500,
-            refreshPolicy = WriteRequest.RefreshPolicy.NONE,
-            retryConflictingUpdates = 0
-        ) {
-            // our input
-            val file = "/Users/jillesvangurp/Downloads/simplewiki-20170820-pages-meta-current.xml.bz2"
-            val reader =
-                BZip2CompressorInputStream(FileInputStream(file)).reader()
+        runBlocking {
+            var count=0
+            articleDao.bulkAsync(bulkSize = 500) {
+                // download your own copy here (~220 MB):
+                // https://dumps.wikimedia.org/simplewiki/latest/simplewiki-latest-pages-meta-current.xml.bz2
+                val file = "/Users/jillesvangurp/Downloads/simplewiki-latest-pages-meta-current.xml.bz2"
+                val reader =
+                    BZip2CompressorInputStream(FileInputStream(file)).reader()
 
-            runBlocking {
-                val inputChannel = Channel<String?>()
-                val outputChannel = Channel<SimpleWikiPediaPage?>()
-                val pageReads = AtomicLong()
-                val processCount = AtomicLong()
-                val skipCount = AtomicLong()
-                val indexCount = AtomicLong()
-                launch {
-                    BlobIterable(reader, "<page", "</page>").iterator()
-                        .asSequence()
-//                        .take(10000) // whole thing would take a few minutes
-                        .forEach {
-                            inputChannel.send(it)
-                            if (pageReads.incrementAndGet() % 1000 == 0L) {
-                                logger.info("read ${pageReads.get()} articles")
-                            }
-                        }
-                    logger.info("DONE read ${pageReads.get()} articles")
-                    inputChannel.close()
-                }
-                launch(newFixedThreadPoolContext(6, "pageprocessor")) {
-                    for(page in inputChannel) {
-                        val processed = parsePage(xpbf, page)
-                        outputChannel.send(processed)
-                        if (processCount.incrementAndGet() % 1000 == 0L ) {
-                            logger.info("processed ${processCount.get()} articles")
-                        }
-
-                    }
-                    outputChannel.close()
-                    logger.info("DONE processed ${processCount.get()} articles")
-
-                }
-                launch {
-                    for(doc in outputChannel) {
-                        if (doc !=null) {
-                            index(doc.id.toString(), doc)
-                            if (indexCount.incrementAndGet() % 1000 == 0L) {
-                                logger.info("indexed ${indexCount.get()} articles; skipped ${skipCount.get()}")
-                            }
-                        } else {
-                            skipCount.incrementAndGet()
+                BlobIterable(reader, "<page", "</page>").iterator()
+                    .asSequence()
+                    .map { parsePage(xpbf, it) }
+                    .filterNotNull()
+                    .take(1000)
+                    .forEach {
+                        count++
+                        index(it.id.toString(), it)
+                        if(count % 500 == 0) {
+                            logger.info { "processed $count pages" }
                         }
                     }
-                    logger.info("DONE indexed ${indexCount.get()} articles; skipped ${skipCount.get()} for a total of ${indexCount.get() + skipCount.get()}")
-                }
             }
-
-//            BlobIterable(reader, "<page", "</page>").iterator()
-//                .asSequence()
-////                .take(10000) // whole thing would take a few minutes
-//                .map { parsePage(xpbf, it) }
-//                .filterNotNull() // filter out all the parser failures
-//                .forEach {
-//                    index(it.id.toString(), it)
-//                    if (count % 1000 == 0) {
-//                        logger.info("processed $count articles")
-//                    }
-//                    count++
-//                }
         }
+        logger.info("Done indexing in ${(System.currentTimeMillis() - start) / 1000} seconds!")
+        logger.info {  "found ${articleDao.search { }.totalHits} documents in the index" }
     }
-    logger.info("Done in ${(System.currentTimeMillis() - start) / 1000} seconds!")
 
 }
 

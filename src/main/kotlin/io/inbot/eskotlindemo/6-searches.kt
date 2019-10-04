@@ -4,10 +4,11 @@ import com.fasterxml.jackson.databind.ObjectMapper
 import io.inbot.eskotlinwrapper.JacksonModelReaderAndWriter
 import org.elasticsearch.action.search.source
 import org.elasticsearch.client.RestHighLevelClient
+import org.elasticsearch.client.create
 import org.elasticsearch.client.crudDao
 
 fun main() {
-    RestHighLevelClient().use { client ->
+    create().use { client ->
 
         // maybe index it first before searching s:-)
         val articleDao = client.crudDao("simplewikipedia",

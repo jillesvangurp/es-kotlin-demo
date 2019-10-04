@@ -5,11 +5,12 @@ import io.inbot.eskotlinwrapper.IndexDAO
 import io.inbot.eskotlinwrapper.JacksonModelReaderAndWriter
 import org.elasticsearch.action.support.WriteRequest
 import org.elasticsearch.client.RestHighLevelClient
+import org.elasticsearch.client.create
 import org.elasticsearch.client.crudDao
 import org.elasticsearch.common.xcontent.XContentType
 
 fun main() {
-    RestHighLevelClient().use { client ->
+    create().use { client ->
         val thingDao = createDaoAndIndex(client)
 
         thingDao.bulk(bulkSize = 10, refreshPolicy = WriteRequest.RefreshPolicy.IMMEDIATE) {

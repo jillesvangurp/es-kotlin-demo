@@ -5,6 +5,7 @@ import io.inbot.eskotlinwrapper.IndexDAO
 import io.inbot.eskotlinwrapper.JacksonModelReaderAndWriter
 import org.elasticsearch.ElasticsearchStatusException
 import org.elasticsearch.client.RestHighLevelClient
+import org.elasticsearch.client.create
 import org.elasticsearch.client.crudDao
 import org.elasticsearch.common.xcontent.XContentType
 
@@ -12,7 +13,7 @@ import org.elasticsearch.common.xcontent.XContentType
 data class Thing(val name: String, val amount: Long = 42)
 
 fun main() {
-    RestHighLevelClient().use { client ->
+    create().use { client ->
         // lets use jackson to serialize our Thing, other serializers
         // can be supported by implementing ModelReaderAndWriter
         val modelReaderAndWriter = JacksonModelReaderAndWriter(Thing::class, ObjectMapper().findAndRegisterModules())

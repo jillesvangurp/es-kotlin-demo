@@ -6,11 +6,12 @@ import io.inbot.eskotlinwrapper.JacksonModelReaderAndWriter
 import org.elasticsearch.ElasticsearchStatusException
 import org.elasticsearch.action.support.WriteRequest
 import org.elasticsearch.client.RestHighLevelClient
+import org.elasticsearch.client.create
 import org.elasticsearch.client.crudDao
 import org.elasticsearch.common.xcontent.XContentType
 
 fun main() {
-    RestHighLevelClient().use { client ->
+    create().use { client ->
 
         val thingDao = createDaoAndIndex(client)
 

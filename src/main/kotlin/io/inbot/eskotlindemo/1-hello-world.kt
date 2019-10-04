@@ -5,6 +5,7 @@ import org.elasticsearch.action.admin.cluster.health.ClusterHealthRequest
 import org.elasticsearch.client.RequestOptions
 import org.elasticsearch.client.RestClient
 import org.elasticsearch.client.RestHighLevelClient
+import org.elasticsearch.client.create
 
 fun main() {
     val restClientBuilder = RestClient.builder(
@@ -18,12 +19,12 @@ fun main() {
     }
 
     // We can do better ...
-    RestHighLevelClient().use { client ->
+    create().use { client ->
         // This works because we have sane default values for parameters that work with localhost:9200
         println("ES is ${client.cluster().health(ClusterHealthRequest(),RequestOptions.DEFAULT).status}")
     }
 
-    RestHighLevelClient(
+    create(
         host = "localhost",
         port = 9200,
         https = false,
