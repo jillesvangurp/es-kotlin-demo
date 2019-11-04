@@ -33,7 +33,7 @@ dependencies {
     // Use the Kotlin JDK 8 standard library.
     implementation("org.jetbrains.kotlin:kotlin-stdlib-jdk8")
 
-    implementation("com.github.jillesvangurp:es-kotlin-wrapper-client:v0.15.1")
+    implementation("com.github.jillesvangurp:es-kotlin-wrapper-client:1.0-M1")
 
     implementation("io.inbot:inbot-utils:1.28")
     implementation("io.inbot:xmltools:2.1")
