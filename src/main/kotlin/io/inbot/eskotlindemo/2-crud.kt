@@ -3,6 +3,7 @@ package io.inbot.eskotlindemo
 import com.fasterxml.jackson.databind.ObjectMapper
 import io.inbot.eskotlinwrapper.IndexDAO
 import io.inbot.eskotlinwrapper.JacksonModelReaderAndWriter
+import kotlinx.coroutines.InternalCoroutinesApi
 import org.elasticsearch.ElasticsearchStatusException
 import org.elasticsearch.client.RestHighLevelClient
 import org.elasticsearch.client.create
@@ -12,6 +13,7 @@ import org.elasticsearch.common.xcontent.XContentType
 // A model class for our Thing
 data class Thing(val name: String, val amount: Long = 42)
 
+@InternalCoroutinesApi
 fun main() {
     create().use { client ->
         // lets use jackson to serialize our Thing, other serializers
@@ -38,6 +40,7 @@ fun main() {
 }
 
 
+@InternalCoroutinesApi
 class ThingService(private val thingDao: IndexDAO<Thing>) {
 
     fun recreateTheIndex() {

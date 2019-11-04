@@ -6,6 +6,7 @@ import io.inbot.eskotlinwrapper.JacksonModelReaderAndWriter
 import io.inbot.xmltools.PooledXmlParser
 import io.inbot.xmltools.XPathExpressionCache
 import io.inbot.xmltools.XpathBrowserFactory
+import kotlinx.coroutines.InternalCoroutinesApi
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.newFixedThreadPoolContext
@@ -32,6 +33,7 @@ data class SimpleWikiPediaPage(
 
 
 val logger = KotlinLogging.logger { }
+@InternalCoroutinesApi
 fun main() {
 
 

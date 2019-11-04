@@ -3,6 +3,7 @@ package io.inbot.eskotlindemo
 import com.fasterxml.jackson.databind.ObjectMapper
 import io.inbot.eskotlinwrapper.IndexDAO
 import io.inbot.eskotlinwrapper.JacksonModelReaderAndWriter
+import kotlinx.coroutines.InternalCoroutinesApi
 import org.elasticsearch.ElasticsearchStatusException
 import org.elasticsearch.action.support.WriteRequest
 import org.elasticsearch.client.RestHighLevelClient
@@ -10,6 +11,7 @@ import org.elasticsearch.client.create
 import org.elasticsearch.client.crudDao
 import org.elasticsearch.common.xcontent.XContentType
 
+@InternalCoroutinesApi
 fun main() {
     create().use { client ->
 
@@ -104,6 +106,7 @@ fun main() {
     }
 }
 
+@InternalCoroutinesApi
 private fun createDaoAndIndex(client: RestHighLevelClient): IndexDAO<Thing> {
     val thingDao = client.crudDao(
         "optimistically",

@@ -2,11 +2,12 @@ package io.inbot.eskotlindemo
 
 import com.fasterxml.jackson.databind.ObjectMapper
 import io.inbot.eskotlinwrapper.JacksonModelReaderAndWriter
+import kotlinx.coroutines.InternalCoroutinesApi
 import org.elasticsearch.action.search.source
-import org.elasticsearch.client.RestHighLevelClient
 import org.elasticsearch.client.create
 import org.elasticsearch.client.crudDao
 
+@InternalCoroutinesApi
 fun main() {
     create().use { client ->
 

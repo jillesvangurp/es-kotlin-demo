@@ -2,8 +2,8 @@ package io.inbot.eskotlindemo
 
 import com.fasterxml.jackson.databind.ObjectMapper
 import io.inbot.eskotlinwrapper.JacksonModelReaderAndWriter
+import kotlinx.coroutines.InternalCoroutinesApi
 import kotlinx.coroutines.runBlocking
-import org.elasticsearch.client.RestHighLevelClient
 import org.elasticsearch.client.create
 import org.elasticsearch.client.crudDao
 import org.elasticsearch.search.aggregations.bucket.terms.Terms
@@ -11,6 +11,7 @@ import org.elasticsearch.search.aggregations.bucket.terms.TermsAggregationBuilde
 import org.elasticsearch.search.aggregations.support.ValueType
 import org.elasticsearch.search.builder.SearchSourceBuilder
 
+@InternalCoroutinesApi
 fun main() {
     create().use { client ->
         

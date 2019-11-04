@@ -1,5 +1,6 @@
 package io.inbot.eskotlindemo
 
+import kotlinx.coroutines.InternalCoroutinesApi
 import org.apache.http.HttpHost
 import org.elasticsearch.action.admin.cluster.health.ClusterHealthRequest
 import org.elasticsearch.client.RequestOptions
@@ -7,6 +8,7 @@ import org.elasticsearch.client.RestClient
 import org.elasticsearch.client.RestHighLevelClient
 import org.elasticsearch.client.create
 
+@InternalCoroutinesApi
 fun main() {
     val restClientBuilder = RestClient.builder(
         HttpHost("localhost", 9200, "http")
